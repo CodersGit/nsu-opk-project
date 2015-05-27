@@ -73,13 +73,13 @@ static void initial_draw() {
 					break;
 					}
                 }
-                con_charAt(ch, color, field_x + i, field_y + j);
+				con_charAt(ch, color, field_x + i, field_y + j);
             }
         }
     }
 
 	point_x = field_x + 1;
-	point_y = field_y + field_height - 2;
+	point_y = field_y + field_height - 10;
 	con_charAt(CHAR_POINT, COLOR_POINT, point_x, point_y);
 	point_x2 = field_x + field_width - 2;
 	point_y2 = field_y + 1;
@@ -98,25 +98,25 @@ int process_key(int key) {
             return 1;
 
         case CON_KEY_UP:
-            if (point_y - 1 > field_y) {
+			if (point_y - 1 > field_y && field[point_x - field_x - 1][point_y - field_y - 1 - 1] == 0) {
                 dy = -1;
             }
             break;
 
         case CON_KEY_DOWN:
-            if (point_y + 1 < field_y + field_height - 1) {
+			if (point_y + 1 < field_y + field_height - 1 && field[point_x - (field_x + 1)][point_y + 1 - (field_y + 1)] == 0) {
                 dy = 1;
             }
             break;
 
         case CON_KEY_LEFT:
-            if (point_x - 1 > field_x) {
+			if (point_x - 1 > field_x && field[point_x - 1 - (field_x + 1)][point_y - (field_y + 1)] == 0) {
                 dx = -1;
             }
             break;
 
         case CON_KEY_RIGHT:
-            if (point_x + 1 < field_x + field_width - 1) {
+			if (point_x + 1 < field_x + field_width - 1 && field[point_x + 1 - (field_x + 1)][point_y - (field_y + 1)] == 0) {
                 dx = 1;
             }
             break;

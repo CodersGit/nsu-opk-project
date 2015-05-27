@@ -10,7 +10,7 @@ int** load_map(int width, int height, char* file_name) {
 	int i, j;
 	for (int i = 0; i<width; i++){
 		for (j = 0; j<height; j++){
-			arr[i][j] = '0';
+			arr[i][j] = 0;
 		}
 	}
 	FILE *file;

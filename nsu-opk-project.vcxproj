@@ -11,51 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lib\base64.c" />
-    <ClCompile Include="lib\conn-http.c" />
-    <ClCompile Include="lib\conn.c" />
     <ClCompile Include="lib\console.c" />
-    <ClCompile Include="lib\gnet-private.c" />
-    <ClCompile Include="lib\gnet.c" />
-    <ClCompile Include="lib\inetaddr.c" />
-    <ClCompile Include="lib\iochannel.c" />
-    <ClCompile Include="lib\ipv6.c" />
-    <ClCompile Include="lib\mcast.c" />
-    <ClCompile Include="lib\md5.c" />
-    <ClCompile Include="lib\pack.c" />
-    <ClCompile Include="lib\server.c" />
-    <ClCompile Include="lib\sha.c" />
-    <ClCompile Include="lib\socks-private.c" />
-    <ClCompile Include="lib\socks.c" />
-    <ClCompile Include="lib\tcp.c" />
-    <ClCompile Include="lib\udp.c" />
-    <ClCompile Include="lib\unix.c" />
-    <ClCompile Include="lib\uri.c" />
-    <ClCompile Include="lib\usagi_ifaddrs.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\base64.h" />
-    <ClInclude Include="lib\conn-http.h" />
-    <ClInclude Include="lib\conn.h" />
     <ClInclude Include="lib\console.h" />
-    <ClInclude Include="lib\gnet-private.h" />
-    <ClInclude Include="lib\gnet.h" />
-    <ClInclude Include="lib\inetaddr.h" />
-    <ClInclude Include="lib\iochannel.h" />
-    <ClInclude Include="lib\ipv6.h" />
-    <ClInclude Include="lib\mcast.h" />
-    <ClInclude Include="lib\md5.h" />
-    <ClInclude Include="lib\pack.h" />
-    <ClInclude Include="lib\server.h" />
-    <ClInclude Include="lib\sha.h" />
-    <ClInclude Include="lib\socks-private.h" />
-    <ClInclude Include="lib\socks.h" />
-    <ClInclude Include="lib\tcp.h" />
-    <ClInclude Include="lib\udp.h" />
-    <ClInclude Include="lib\unix.h" />
-    <ClInclude Include="lib\uri.h" />
-    <ClInclude Include="lib\usagi_ifaddrs.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{12711D9E-F0BB-4D46-AFF0-D5BCACB7CD74}</ProjectGuid>

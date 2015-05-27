@@ -9,7 +9,7 @@
 #define CHAR_ROCKET '1'
 #define CHAR_BORDER '#'
 #define CHAR_FIELD  ' '
-#define CHAR_POINT  '_'
+#define CHAR_POINT  219
 
 #define COLOR_BORDER 1
 #define COLOR_FIELD  2

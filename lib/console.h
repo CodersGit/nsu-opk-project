@@ -12,6 +12,8 @@ extern "C" {
 #define CON_KEY_LEFT        -75
 #define CON_KEY_RIGHT       -77
 #define CON_KEY_DOWN        -80
+#define CON_KEY_RIGHT_CTRL	0xA3
+#define CON_KEY_SPACE		0x20
 #define CON_KEY_ESCAPE      27
 #define CON_KEY_INSERT      -82
 #define CON_KEY_DEL         -83

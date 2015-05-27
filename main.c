@@ -85,7 +85,7 @@ static void initial_draw() {
     }
 
 	point_x = field_x + 1;
-	point_y = field_y + field_height - 10;
+	point_y = field_y + field_height - 2;
 	con_charAt(CHAR_POINT, COLOR_POINT, point_x, point_y);
 	point_x2 = field_x + field_width - 2;
 	point_y2 = field_y + 1;

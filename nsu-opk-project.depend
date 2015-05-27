@@ -1,0 +1,19 @@
+# depslib dependency file v1.0
+1432656587 source:c:\users\coder.win-t04gr7gidpv\documents\nsu-opk-project\console.c
+	"console.h"
+	<stdarg.h>
+	<stdio.h>
+	<assert.h>
+	<wtypes.h>
+	<wincon.h>
+	<locale.h>
+	<stdarg.h>
+
+1432656580 c:\users\coder.win-t04gr7gidpv\documents\nsu-opk-project\console.h
+	<conio.h>
+	<ncurses.h>
+
+1432656576 source:c:\users\coder.win-t04gr7gidpv\documents\nsu-opk-project\example.c
+	<assert.h>
+	"console.h"
+

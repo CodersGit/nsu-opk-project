@@ -12,10 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lib\console.c" />
+    <ClCompile Include="lib\map_reader.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\console.h" />
+    <ClInclude Include="lib\map_reader.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{12711D9E-F0BB-4D46-AFF0-D5BCACB7CD74}</ProjectGuid>

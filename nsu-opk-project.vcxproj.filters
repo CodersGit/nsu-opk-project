@@ -24,9 +24,15 @@
     <ClCompile Include="lib\console.c">
       <Filter>Source Files\lib</Filter>
     </ClCompile>
+    <ClCompile Include="lib\map_reader.c">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\map_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

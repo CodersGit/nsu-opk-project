@@ -11,7 +11,7 @@
 #define CHAR_FIELD  ' '
 #define CHAR_POINT  219
 #define CHAR_UBLOCK 178
-#define CHAR_BBLOCK 176
+#define CHAR_BBLOCK 177
 
 #define COLOR_BORDER	1
 #define COLOR_FIELD		2

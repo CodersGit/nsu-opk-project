@@ -1,17 +1,21 @@
 #include <assert.h>
+#include <windows.h>
+#include <stdbool.h>
+#include <process.h>
 #include "lib/console.h"
 #include "lib/map_reader.h"
 
 #define TITLE_X 3
 #define TITLE_Y 1
 
-#define FIELD_PADDING 3
-#define CHAR_ROCKET '1'
-#define CHAR_BORDER '#'
-#define CHAR_FIELD  ' '
-#define CHAR_POINT  219
-#define CHAR_UBLOCK 178
-#define CHAR_BBLOCK 177
+#define FIELD_PADDING	3
+#define CHAR_ROCKET		'1'
+#define CHAR_BORDER		'#'
+#define CHAR_FIELD		' '
+#define CHAR_POINT		219
+#define CHAR_POINT_3	220
+#define CHAR_UBLOCK		178
+#define CHAR_BBLOCK		177
 
 #define COLOR_BORDER	1
 #define COLOR_FIELD		2
@@ -19,6 +23,7 @@
 #define COLOR_POINT_2	4
 #define COLOR_UBLOCK	5
 #define COLOR_BBLOCK	6
+#define COLOR_POINT_3	7
 
 static int field_x, field_y; // top-left corner
 static int field_width, field_height;
@@ -37,6 +42,7 @@ static void init_colors() {
 	con_initPair(COLOR_FIELD, CON_COLOR_GREEN, CON_COLOR_GREEN);
 	con_initPair(COLOR_POINT, CON_COLOR_CYAN, CON_COLOR_GREEN);
 	con_initPair(COLOR_POINT_2, CON_COLOR_YELLOW, CON_COLOR_GREEN);
+	con_initPair(COLOR_POINT_3, CON_COLOR_YELLOW, CON_COLOR_CYAN);
 	con_initPair(COLOR_UBLOCK, CON_COLOR_BLUE, CON_COLOR_GREEN);
 	con_initPair(COLOR_BBLOCK, CON_COLOR_RED, CON_COLOR_GREEN);
 	con_initPair(COLOR_BORDER, CON_COLOR_BLACK, CON_COLOR_WHITE);
@@ -85,73 +91,167 @@ static void initial_draw() {
 	point_y2 = field_y + 1;
 	con_charAt(CHAR_POINT, COLOR_POINT_2, point_x2, point_y2);
 }
+int player_derection_1 = 0, player_derection_2 = 0;
+bool player_planted_bomb_1 = false, player_planted_bomb_2 = false;
 
-/* Returns 1 if quit. */
 int process_key(int key) {
-    // position change
-    int dx = 0;
-    int dy = 0;
-    int dz=0;
 
-    switch (key) {
-        case CON_KEY_ESCAPE:
-            return 1;
+	switch (key) {
 
-        case CON_KEY_UP:
-			if (point_y - 1 > field_y && field[point_x - field_x - 1][point_y - field_y - 1 - 1] == 0) {
-                dy = -1;
-            }
-            break;
+	case CON_KEY_UP:
+		player_derection_1 = 1;
+		break;
 
-        case CON_KEY_DOWN:
-			if (point_y + 1 < field_y + field_height - 1 && field[point_x - (field_x + 1)][point_y + 1 - (field_y + 1)] == 0) {
-                dy = 1;
-            }
-            break;
+	case CON_KEY_DOWN:
+		player_derection_1 = 2;
+		break;
 
-        case CON_KEY_LEFT:
-			if (point_x - 1 > field_x && field[point_x - 1 - (field_x + 1)][point_y - (field_y + 1)] == 0) {
-                dx = -1;
-            }
-            break;
+	case CON_KEY_LEFT:
+		player_derection_1 = 3;
+		break;
 
-        case CON_KEY_RIGHT:
-			if (point_x + 1 < field_x + field_width - 1 && field[point_x + 1 - (field_x + 1)][point_y - (field_y + 1)] == 0) {
-                dx = 1;
-            }
-            break;
-        case CON_KEY_ENTER:
-            {if(point_y-1>field_y)
-            dz=1;
+	case CON_KEY_RIGHT:
+		player_derection_1 = 4;
+		break;
+	case CON_KEY_RIGHT_CTRL:
+		player_planted_bomb_1 = true;
+		break;
 
-            }
-            break;
-        }
+	case CON_KEY_W:
+		player_derection_2 = 1;
+		break;
 
+	case CON_KEY_S:
+		player_derection_2 = 2;
+		break;
 
-    if (dx != 0 || dy != 0) {
-        con_charAt(CHAR_FIELD, COLOR_FIELD, point_x, point_y);
-        point_x += dx;
-        point_y += dy;
-        con_charAt(CHAR_POINT, COLOR_POINT, point_x, point_y);
-    }
-    if(dz!=0){
-            int i;
-            int t=point_y;
-        for(i=0;i<field_height/2;i++){
-            point_y=point_y-1;
-            con_charAt(CHAR_FIELD,COLOR_FIELD,point_x,point_y+1);
-            con_charAt(CHAR_ROCKET, COLOR_POINT, point_x, point_y);
-            //con_charAt(' ',COLOR_POINT,point_x,point_y+i);
-        }
-        point_y=t;
-        con_charAt(CHAR_POINT, COLOR_POINT, point_x, point_y);
-    }
-    return 0;
+	case CON_KEY_A:
+		player_derection_2 = 3;
+		break;
+
+	case CON_KEY_D:
+		player_derection_2 = 4;
+		break;
+	case CON_KEY_SPACE:
+		player_planted_bomb_2 = true;
+		break;
+	}
+	return 0;
+}
+
+bool player_dead_1 = false, player_dead_2 = false, game_over = false;
+void refresh_player_1() {
+	int dx = 0;
+	int dy = 0;
+	int dz = 0;
+
+	switch (player_derection_1) {
+	case 1:
+		if (point_y - 1 > field_y && field[point_x - field_x - 1][point_y - field_y - 1 - 1] == 0) {
+			dy = -1;
+		}
+		break;
+
+	case 2:
+		if (point_y + 1 < field_y + field_height - 1 && field[point_x - (field_x + 1)][point_y + 1 - (field_y + 1)] == 0) {
+			dy = 1;
+		}
+		break;
+
+	case 3:
+		if (point_x - 1 > field_x && field[point_x - 1 - (field_x + 1)][point_y - (field_y + 1)] == 0) {
+			dx = -1;
+		}
+		break;
+
+	case 4:
+		if (point_x + 1 < field_x + field_width - 1 && field[point_x + 1 - (field_x + 1)][point_y - (field_y + 1)] == 0) {
+			dx = 1;
+		}
+		break;
+	}
+
+	if (player_planted_bomb_1) {
+		field[point_x - field_x - 1][point_y - field_y - 1] = -60;
+		player_planted_bomb_1 = false;
+		return;
+	}
+
+	if (dx != 0 || dy != 0) {
+		con_charAt(CHAR_FIELD, COLOR_FIELD, point_x, point_y);
+		point_x += dx;
+		point_y += dy;
+		con_charAt(CHAR_POINT, COLOR_POINT, point_x, point_y);
+	}
+	if (field[point_x - field_x - 1][point_y - field_y - 1] < -60)
+		player_dead_1 = true;
+}
+
+void refresh_player_2() {
+	int dx = 0;
+	int dy = 0;
+	int dz = 0;
+
+	switch (player_derection_2) {
+	case 1:
+		if (point_y2 - 1 > field_y && field[point_x2 - field_x - 1][point_y2 - field_y - 1 - 1] == 0) {
+			dy = -1;
+		}
+		break;
+
+	case 2:
+		if (point_y2 + 1 < field_y + field_height - 1 && field[point_x2 - (field_x + 1)][point_y2 + 1 - (field_y + 1)] == 0) {
+			dy = 1;
+		}
+		break;
+
+	case 3:
+		if (point_x2 - 1 > field_x && field[point_x2 - 1 - (field_x + 1)][point_y2 - (field_y + 1)] == 0) {
+			dx = -1;
+		}
+		break;
+
+	case 4:
+		if (point_x2 + 1 < field_x + field_width - 1 && field[point_x2 + 1 - (field_x + 1)][point_y2 - (field_y + 1)] == 0) {
+			dx = 1;
+		}
+		break;
+	}
+
+	if (player_planted_bomb_2) {
+		field[point_x2 - field_x - 1][point_y2 - field_y - 1] = -60;
+		player_planted_bomb_2 = false;
+		return;
+	}
+
+	bool specified = (point_x == point_x2 && point_y == point_y2) ? true : false;
+	if (dx != 0 || dy != 0) {
+		(specified) ? con_charAt(CHAR_FIELD, COLOR_FIELD, point_x, point_y) : con_charAt(CHAR_FIELD, COLOR_FIELD, point_x2, point_y2);
+		point_x2 += dx;
+		point_y2 += dy;
+		specified = (point_x == point_x2 && point_y == point_y2) ? true : false;
+	}
+	con_charAt((specified) ? CHAR_POINT_3 : CHAR_POINT, (specified) ? COLOR_POINT_3 : COLOR_POINT_2, point_x2, point_y2);
+	if (field[point_x2 - field_x - 1][point_y2 - field_y - 1] < -60)
+		player_dead_2 = true;
+}
+
+void repaint() {
+	refresh_player_1();
+	refresh_player_2();
+	if (player_dead_1 == true && player_dead_2 == true)
+		game_over = false;
+}
+
+void thread_key_listener() {
+	while (1) {
+		if (con_keyPressed()) {
+			process_key(con_getKey());
+		}
+	}
 }
 
 int main(int argc, char * argv[]) {
-    int quit = 0;
     int max_x, max_y;
 
     con_init();
@@ -169,13 +269,10 @@ int main(int argc, char * argv[]) {
     assert(field_height > 2);
 	field = load_map(field_width - 2, field_height - 2, (argc == 2) ? argv[1] : "example.map");
     initial_draw();
-
-    while (!quit) {
-        if (con_keyPressed()) {
-            if (process_key(con_getKey())) {
-                quit = 1;
-            }
-        }
+	_beginthread(thread_key_listener, 0, NULL);
+    while (!game_over) {
+		repaint();
+		Sleep(50);
     }
 
     con_clearScr();

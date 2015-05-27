@@ -23,6 +23,10 @@ extern "C" {
 #define CON_KEY_END         -79
 #define CON_KEY_PAGEUP      -73
 #define CON_KEY_PAGEDOWN    -81
+#define CON_KEY_W			0x57
+#define CON_KEY_A			0x41
+#define CON_KEY_S			0x53
+#define CON_KEY_D			0x44
 
 #define CON_COLOR_BLACK     0x0000
 #define CON_COLOR_BLUE      0x0001

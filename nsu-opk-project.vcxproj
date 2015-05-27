@@ -19,6 +19,9 @@
     <ClInclude Include="lib\console.h" />
     <ClInclude Include="lib\map_reader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="example.map" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{12711D9E-F0BB-4D46-AFF0-D5BCACB7CD74}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

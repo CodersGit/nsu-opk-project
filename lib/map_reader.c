@@ -26,7 +26,7 @@ int** load_map(int width, int height, char* file_name) {
 				continue;
 			arr[x - 1][y - 1] = data;
 		} else {
-			printf("Map file incorrect or is damaged");
+			printf("Map file incorrect or was damaged");
 		}
 	fclose(file);
 	return arr;

@@ -42,7 +42,7 @@ static void init_colors() {
 	con_initPair(COLOR_FIELD, CON_COLOR_GREEN, CON_COLOR_GREEN);
 	con_initPair(COLOR_POINT, CON_COLOR_CYAN, CON_COLOR_GREEN);
 	con_initPair(COLOR_POINT_2, CON_COLOR_YELLOW, CON_COLOR_GREEN);
-	con_initPair(COLOR_POINT_3, CON_COLOR_YELLOW, CON_COLOR_CYAN);
+	con_initPair(COLOR_POINT_3, CON_COLOR_CYAN, CON_COLOR_YELLOW);
 	con_initPair(COLOR_UBLOCK, CON_COLOR_BLUE, CON_COLOR_GREEN);
 	con_initPair(COLOR_BBLOCK, CON_COLOR_RED, CON_COLOR_GREEN);
 	con_initPair(COLOR_BORDER, CON_COLOR_BLACK, CON_COLOR_WHITE);
@@ -51,7 +51,7 @@ static void init_colors() {
 static void initial_draw() {
     con_clearScr();
     con_gotoXY(TITLE_X, TITLE_Y);
-    con_outTxt("Use arrows to move point, use Esc to exit.");
+	con_outTxt("Yellow player uses W, A, S, D, Space; cyan - arrows + Enter");
 
     {
         int i, j;
@@ -113,7 +113,7 @@ int process_key(int key) {
 	case CON_KEY_RIGHT:
 		player_derection_1 = 4;
 		break;
-	case CON_KEY_RIGHT_CTRL:
+	case CON_KEY_ENTER:
 		player_planted_bomb_1 = true;
 		break;
 
@@ -236,11 +236,49 @@ void refresh_player_2() {
 		player_dead_2 = true;
 }
 
+void bomb_blow(int x, int y, int d, char axis) {
+	if (axis == 1) {
+		for (int i = 0; abs(i*d) < 5 && x + i*d >= 0 && x + i*d < field_width - 2 && field[x + i*d][y] != 2; i++) {
+			field[x + i*d][y] = -80;
+			con_charAt(CHAR_POINT, COLOR_BORDER, field_x + 1 + x + i*d, field_y + 1 + y);
+		}
+	} else {
+		for (int i = 0; abs(i*d) < 5 && y + i*d >= 0 && y + i*d < field_height - 2 && field[x][y + i*d] != 2; i++) {
+			field[x][y + i*d] = -80;
+			con_charAt(CHAR_POINT, COLOR_BORDER, field_x + 1 + x, field_y + 1 + y + i*d);
+		}
+	}
+}
+
 void repaint() {
+	for (int i = 0; i < field_width - 2; i++)
+		for (int j = 0; j < field_height - 2; j++) {
+			if (field[i][j] < 0) {
+				switch (field[i][j])
+				{
+				case -1:
+					bomb_blow(i, j, -1, 0);
+					bomb_blow(i, j, 1, 0);
+					bomb_blow(i, j, 1, 1);
+					bomb_blow(i, j, -1, 1);
+					break;
+				case -61:
+					field[i][j] = 0;
+					con_charAt(CHAR_FIELD, COLOR_FIELD, field_x + 1 + i, field_y + 1 + j);
+					break;
+				default:
+					(abs(field[i][j])%20 < 10)? 
+						con_charAt((field[i][j] < -60) ? CHAR_POINT : CHAR_ROCKET, (field[i][j] < -60) ? COLOR_BORDER : COLOR_BBLOCK, field_x + 1 + i, field_y + 1 + j) :
+					con_charAt(CHAR_FIELD, COLOR_FIELD, field_x + 1 + i, field_y + 1 + j);
+					field[i][j]++;
+					break;
+				}
+			}
+		}
 	refresh_player_1();
 	refresh_player_2();
-	if (player_dead_1 == true && player_dead_2 == true)
-		game_over = false;
+	if (player_dead_1 == true || player_dead_2 == true)
+		game_over = true;
 }
 
 void thread_key_listener() {
@@ -275,6 +313,17 @@ int main(int argc, char * argv[]) {
 		Sleep(50);
     }
 
+	if (player_dead_1 && player_dead_2){
+		con_gotoXY(field_x + field_width / 2 - 5, field_y + field_height / 2);
+		con_outTxt("Round draw");
+	} else if (player_dead_1) {
+		con_gotoXY(field_x + field_width / 2 - 16, field_y + field_height / 2);
+		con_outTxt("Yellow player have won this round");
+	} else {
+		con_gotoXY(field_x + field_width / 2 - 15, field_y + field_height / 2);
+		con_outTxt("Cyan player have won this round");
+	}
+	Sleep(10000);
     con_clearScr();
     con_deinit();
     return 0;

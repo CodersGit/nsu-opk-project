@@ -281,7 +281,7 @@ void repaint() {
 		game_over = true;
 }
 
-void thread_key_listener() {
+void thread_key_listener(void* unused) {
 	while (1) {
 		if (con_keyPressed()) {
 			process_key(con_getKey());

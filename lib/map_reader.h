@@ -2,5 +2,5 @@
 #define MAP_READER_H_INCLUDED
 #include <stdio.h>
 
-int** load_map(int width, int height, char* file_name);
+int load_map(int width, int height, char* file_name, int*** result);
 #endif

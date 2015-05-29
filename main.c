@@ -305,7 +305,21 @@ int main(int argc, char * argv[]) {
     field_height = max_y - field_y - FIELD_PADDING;
     assert(field_width > 2);
     assert(field_height > 2);
-	field = load_map(field_width - 2, field_height - 2, (argc == 2) ? argv[1] : "example.map");
+	int err;
+	if (err = load_map(field_width - 2, field_height - 2, (argc > 1) ? argv[1] : "example.map", &field)) {
+		con_clearScr();
+		con_deinit();
+		switch (err)
+		{
+		case 1:
+			printf("Can't open map \"%s\": no such file or directory.", (argc > 1) ? argv[1] : "example.map");
+			break;
+		case 2:
+			printf("Can't open map \"%s\": file have been damaged.", (argc > 1) ? argv[1] : "example.map");
+			break;
+		}
+		return 0;
+	}
     initial_draw();
 	_beginthread(thread_key_listener, 0, NULL);
     while (!game_over) {

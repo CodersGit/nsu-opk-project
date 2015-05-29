@@ -7,7 +7,7 @@ int load_map(int width, int height, char* file_name, int*** result) {
 	for (int i = 0; i < width; i++) {
 		arr[i] = (int*)malloc(sizeof(int) * height);
 	}
-	int i, j;
+	int i, j, errcode;
 	for (i = 0; i<width; i++){
 		for (j = 0; j<height; j++){
 			arr[i][j] = 0;

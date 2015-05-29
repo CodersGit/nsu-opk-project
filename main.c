@@ -239,12 +239,12 @@ void refresh_player_2() {
 void bomb_blow(int x, int y, int d, char axis) {
 	if (axis == 1) {
 		for (int i = 0; abs(i*d) < 5 && x + i*d >= 0 && x + i*d < field_width - 2 && field[x + i*d][y] != 2; i++) {
-			field[x + i*d][y] = -80;
+			field[x + i*d][y] = -70;
 			con_charAt(CHAR_POINT, COLOR_BORDER, field_x + 1 + x + i*d, field_y + 1 + y);
 		}
 	} else {
 		for (int i = 0; abs(i*d) < 5 && y + i*d >= 0 && y + i*d < field_height - 2 && field[x][y + i*d] != 2; i++) {
-			field[x][y + i*d] = -80;
+			field[x][y + i*d] = -70;
 			con_charAt(CHAR_POINT, COLOR_BORDER, field_x + 1 + x, field_y + 1 + y + i*d);
 		}
 	}
@@ -267,7 +267,7 @@ void repaint() {
 					con_charAt(CHAR_FIELD, COLOR_FIELD, field_x + 1 + i, field_y + 1 + j);
 					break;
 				default:
-					(abs(field[i][j])%20 < 10)? 
+					(abs(field[i][j])%10 < 5)? 
 						con_charAt((field[i][j] < -60) ? CHAR_POINT : CHAR_ROCKET, (field[i][j] < -60) ? COLOR_BORDER : COLOR_BBLOCK, field_x + 1 + i, field_y + 1 + j) :
 					con_charAt(CHAR_FIELD, COLOR_FIELD, field_x + 1 + i, field_y + 1 + j);
 					field[i][j]++;
@@ -290,6 +290,15 @@ void thread_key_listener(void* unused) {
 }
 
 int main(int argc, char * argv[]) {
+	if (argc > 1 && !(strcmp(argv[1], "help") && strcmp(argv[1], "-h"))) {
+		printf("The bomberman game v1.0\n\n* You can run it like \"%s filename.map\" to load a custom map or without arguments to use map from example.map\n* run with key \"about\" to view credits.", argv[0]);
+		return 0;
+	}
+	if (argc > 1 && !(strcmp(argv[1], "info") && strcmp(argv[1], "-v") && strcmp(argv[1], "about"))) {
+		printf("The bomberman game v1.0 (c) Zhirov Sergey, 2015\n\nWroted as a project for a NSU BPC cource.\n\nThanks:\n Alexander Senchenko - seminarian\n Ivan Ashkarin - for inspiration\n Hudson Soft company - for idea.\n\nAlso you can visit my blog http://blogofcoder.ru/ \nHave fun!\n");
+		return 0;
+	}
+
     int max_x, max_y;
 
     con_init();
@@ -306,16 +315,17 @@ int main(int argc, char * argv[]) {
     assert(field_width > 2);
     assert(field_height > 2);
 	int err;
-	if (err = load_map(field_width - 2, field_height - 2, (argc > 1) ? argv[1] : "example.map", &field)) {
+	char* map = (argc > 1) ? argv[1] : "example.map";
+	if (err = load_map(field_width - 2, field_height - 2, map, &field)) {
 		con_clearScr();
 		con_deinit();
 		switch (err)
 		{
 		case 1:
-			printf("Can't open map \"%s\": no such file or directory.", (argc > 1) ? argv[1] : "example.map");
+			printf("Can't open map \"%s\": no such file or directory.\n", map);
 			break;
 		case 2:
-			printf("Can't open map \"%s\": file have been damaged.", (argc > 1) ? argv[1] : "example.map");
+			printf("Can't open map \"%s\": file have been damaged.\n", map);
 			break;
 		}
 		return 0;
@@ -337,6 +347,7 @@ int main(int argc, char * argv[]) {
 		con_gotoXY(field_x + field_width / 2 - 15, field_y + field_height / 2);
 		con_outTxt("Cyan player have won this round");
 	}
+	con_gotoXY(0, 0);
 	Sleep(10000);
     con_clearScr();
     con_deinit();

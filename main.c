@@ -24,6 +24,7 @@
 #define COLOR_UBLOCK	5
 #define COLOR_BBLOCK	6
 #define COLOR_POINT_3	7
+#define COLOR_CONSOLE	8
 
 static int field_x, field_y; // top-left corner
 static int field_width, field_height;
@@ -46,12 +47,13 @@ static void init_colors() {
 	con_initPair(COLOR_UBLOCK, CON_COLOR_BLUE, CON_COLOR_GREEN);
 	con_initPair(COLOR_BBLOCK, CON_COLOR_RED, CON_COLOR_GREEN);
 	con_initPair(COLOR_BORDER, CON_COLOR_BLACK, CON_COLOR_WHITE);
+	con_initPair(COLOR_CONSOLE, CON_COLOR_WHITE, CON_COLOR_BLACK);
 }
 
 static void initial_draw() {
     con_clearScr();
     con_gotoXY(TITLE_X, TITLE_Y);
-	con_outTxt("Yellow player uses W, A, S, D, Space; cyan - arrows + Enter");
+	con_outTxt("Yellow player uses W, A, S, D, Space to plant bomb; cyan - arrows + Enter to plant bomb");
 
     {
         int i, j;
@@ -347,7 +349,7 @@ int main(int argc, char * argv[]) {
 		con_gotoXY(field_x + field_width / 2 - 15, field_y + field_height / 2);
 		con_outTxt("Cyan player have won this round");
 	}
-	con_gotoXY(0, 0);
+	con_charAt(CHAR_FIELD, COLOR_CONSOLE, 0, 0);
 	Sleep(10000);
     con_clearScr();
     con_deinit();

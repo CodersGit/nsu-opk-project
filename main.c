@@ -26,6 +26,13 @@
 #define COLOR_POINT_3	7
 #define COLOR_CONSOLE	8
 
+#define NEW_BOMB -60
+#define NEW_BLOW -70
+#define OLD_BOMB -1
+#define OLD_BLOW -61
+#define BR_BLOCK 1
+#define UNB_BLOCK 2
+
 static int field_x, field_y; // top-left corner
 static int field_width, field_height;
 static int point_x, point_y;
@@ -174,7 +181,7 @@ void refresh_player_1() {
 	}
 
 	if (player_planted_bomb_1) {
-		field[point_x - field_x - 1][point_y - field_y - 1] = -60;
+		field[point_x - field_x - 1][point_y - field_y - 1] = NEW_BOMB;
 		player_planted_bomb_1 = false;
 		return;
 	}
@@ -185,7 +192,7 @@ void refresh_player_1() {
 		point_y += dy;
 		con_charAt(CHAR_POINT, COLOR_POINT, point_x, point_y);
 	}
-	if (field[point_x - field_x - 1][point_y - field_y - 1] < -60)
+	if (field[point_x - field_x - 1][point_y - field_y - 1] <= OLD_BLOW)
 		player_dead_1 = true;
 }
 
@@ -221,7 +228,7 @@ void refresh_player_2() {
 	}
 
 	if (player_planted_bomb_2) {
-		field[point_x2 - field_x - 1][point_y2 - field_y - 1] = -60;
+		field[point_x2 - field_x - 1][point_y2 - field_y - 1] = NEW_BOMB;
 		player_planted_bomb_2 = false;
 		return;
 	}
@@ -234,19 +241,19 @@ void refresh_player_2() {
 		specified = (point_x == point_x2 && point_y == point_y2) ? true : false;
 	}
 	con_charAt((specified) ? CHAR_POINT_3 : CHAR_POINT, (specified) ? COLOR_POINT_3 : COLOR_POINT_2, point_x2, point_y2);
-	if (field[point_x2 - field_x - 1][point_y2 - field_y - 1] < -60)
+	if (field[point_x2 - field_x - 1][point_y2 - field_y - 1] <= OLD_BLOW)
 		player_dead_2 = true;
 }
 
 void bomb_blow(int x, int y, int d, char axis) {
 	if (axis == 1) {
-		for (int i = 0; abs(i*d) < 5 && x + i*d >= 0 && x + i*d < field_width - 2 && field[x + i*d][y] != 2; i++) {
-			field[x + i*d][y] = -70;
+		for (int i = 0; abs(i*d) < 5 && x + i*d >= 0 && x + i*d < field_width - 2 && field[x + i*d][y] != UNB_BLOCK; i++) {
+			field[x + i*d][y] = NEW_BLOW;
 			con_charAt(CHAR_POINT, COLOR_BORDER, field_x + 1 + x + i*d, field_y + 1 + y);
 		}
 	} else {
-		for (int i = 0; abs(i*d) < 5 && y + i*d >= 0 && y + i*d < field_height - 2 && field[x][y + i*d] != 2; i++) {
-			field[x][y + i*d] = -70;
+		for (int i = 0; abs(i*d) < 5 && y + i*d >= 0 && y + i*d < field_height - 2 && field[x][y + i*d] != UNB_BLOCK; i++) {
+			field[x][y + i*d] = NEW_BLOW;
 			con_charAt(CHAR_POINT, COLOR_BORDER, field_x + 1 + x, field_y + 1 + y + i*d);
 		}
 	}
@@ -258,19 +265,19 @@ void repaint() {
 			if (field[i][j] < 0) {
 				switch (field[i][j])
 				{
-				case -1:
+				case OLD_BOMB:
 					bomb_blow(i, j, -1, 0);
 					bomb_blow(i, j, 1, 0);
 					bomb_blow(i, j, 1, 1);
 					bomb_blow(i, j, -1, 1);
 					break;
-				case -61:
+				case OLD_BLOW:
 					field[i][j] = 0;
 					con_charAt(CHAR_FIELD, COLOR_FIELD, field_x + 1 + i, field_y + 1 + j);
 					break;
 				default:
 					(abs(field[i][j])%10 < 5)? 
-						con_charAt((field[i][j] < -60) ? CHAR_POINT : CHAR_ROCKET, (field[i][j] < -60) ? COLOR_BORDER : COLOR_BBLOCK, field_x + 1 + i, field_y + 1 + j) :
+						con_charAt((field[i][j] <= OLD_BLOW) ? CHAR_POINT : CHAR_ROCKET, (field[i][j] <= OLD_BLOW) ? COLOR_BORDER : COLOR_BBLOCK, field_x + 1 + i, field_y + 1 + j) :
 					con_charAt(CHAR_FIELD, COLOR_FIELD, field_x + 1 + i, field_y + 1 + j);
 					field[i][j]++;
 					break;
@@ -289,6 +296,14 @@ void thread_key_listener(void* unused) {
 			process_key(con_getKey());
 		}
 	}
+}
+
+void full_deinit() {
+	for (int i = 0; i < field_width - 2; i++)
+		if (field && field + i) free(field[i]);
+	free(field);
+	con_clearScr();
+	con_deinit();
 }
 
 int main(int argc, char * argv[]) {
@@ -318,9 +333,8 @@ int main(int argc, char * argv[]) {
     assert(field_height > 2);
 	int err;
 	char* map = (argc > 1) ? argv[1] : "example.map";
-	if (err = load_map(field_width - 2, field_height - 2, map, &field)) {
-		con_clearScr();
-		con_deinit();
+	if (err = load_map(&field_width, &field_height, map, &field)) {
+		full_deinit();
 		switch (err)
 		{
 		case 1:
@@ -329,6 +343,9 @@ int main(int argc, char * argv[]) {
 		case 2:
 			printf("Can't open map \"%s\": file have been damaged.\n", map);
 			break;
+		case 3:
+			printf("Can't open map \"%s\": console window's size is too small.\n", map);
+			break;
 		}
 		return 0;
 	}
@@ -336,7 +353,7 @@ int main(int argc, char * argv[]) {
 	_beginthread(thread_key_listener, 0, NULL);
     while (!game_over) {
 		repaint();
-		Sleep(50);
+		Sleep(17);
     }
 
 	if (player_dead_1 && player_dead_2){
@@ -351,7 +368,6 @@ int main(int argc, char * argv[]) {
 	}
 	con_charAt(CHAR_FIELD, COLOR_CONSOLE, 0, 0);
 	Sleep(10000);
-    con_clearScr();
-    con_deinit();
+	full_deinit();
     return 0;
 }
